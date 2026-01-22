@@ -9,7 +9,6 @@ def calculate_top_indexes(movie_name, num_of_recs):
     calc_dataset = pd.read_csv('../../data/processed/Cleaned_For_TF-IDF_Movie_Dataset.csv')
 
     # String safety after CSV load
-    calc_dataset['overview'] = calc_dataset['overview'].fillna('').astype(str)
     calc_dataset['genres'] = calc_dataset['genres'].fillna('').astype(str)
 
     # Lookup
@@ -19,7 +18,7 @@ def calculate_top_indexes(movie_name, num_of_recs):
         return None
 
     # Vectorization (columns are normalised by making lowercase)
-    overview_genres = calc_dataset['overview'].str.lower() + ' ' + calc_dataset['genres'].str.lower()
+    overview_genres = calc_dataset['keywords'].str.lower() + ' ' + calc_dataset['genres'].str.lower() + ' ' + calc_dataset['overview'].str.lower()
     vectorizer = TfidfVectorizer()
     vectors = vectorizer.fit_transform(overview_genres)
 
