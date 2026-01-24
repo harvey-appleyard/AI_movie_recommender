@@ -51,13 +51,33 @@ def calculate_top_indexes(movie_name, num_of_recs):
             OVERVIEW_WEIGHT * overview_similarity_scores
     )
 
-    # Organises similarity scores to top n recs
-    similarity_series = pd.Series(similarity_scores)
-    similarity_series.sort_values(ascending=False, inplace=True)
-    similarity_series.drop(movie_index, inplace=True)
-    similar_indexes = similarity_series.index[:num_of_recs]
+    # Handle missing values
+    calc_dataset[['averageRating', 'numVotes']] = calc_dataset[['averageRating', 'numVotes']].fillna(0)
 
-    return similar_indexes
+    #Initialise column
+    calc_dataset['rating_weight'] = 0.0
+
+    # Set rating weight column for each row based on num of votes
+    calc_dataset.loc[calc_dataset['numVotes'] < 100, 'rating_weight'] = 0.6
+    calc_dataset.loc[(calc_dataset['numVotes'] >= 100) & (calc_dataset['numVotes'] < 100000), 'rating_weight'] = 0.8
+    calc_dataset.loc[(calc_dataset['numVotes'] >= 100000) & (calc_dataset['numVotes'] < 1000000), 'rating_weight'] = 0.9
+    calc_dataset.loc[calc_dataset['numVotes'] >= 1000000, 'rating_weight'] = 1.0
+
+    # Combine rating with weight into new column
+    calc_dataset['rating_modifier'] = (calc_dataset['averageRating'] * calc_dataset['rating_weight'])
+
+    # Turn into array format
+    rating_scores = calc_dataset['rating_modifier'].to_numpy()
+
+    final_scores = similarity_scores + rating_scores
+
+    # Organises similarity scores to top n recs
+    recommendation_series = pd.Series(final_scores)
+    recommendation_series.sort_values(ascending=False, inplace=True)
+    recommendation_series.drop(movie_index, inplace=True)
+    rec_indexes = recommendation_series.index[:num_of_recs]
+
+    return rec_indexes
 
 
 # Outer program loop / UI
