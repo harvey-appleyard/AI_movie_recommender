@@ -4,7 +4,7 @@ import pandas as pd
 df = pd.read_csv('../../data/raw/Original_Raw_Movie_Dataset.csv')
 
 #Only these 4 columns
-cleaned = df[['id', 'title', 'genres', 'overview', 'keywords']].copy()
+cleaned = df[['id', 'title', 'genres', 'overview', 'keywords', 'averageRating', 'numVotes']].copy()
 
 #Drop row if no id, title, overview or keywords
 cleaned.dropna(subset=['id', 'title', 'overview', 'keywords'], inplace=True)
@@ -26,4 +26,3 @@ cleaned.reset_index(drop=True, inplace=True)
 
 #Save
 cleaned.to_csv('../../data/processed/Cleaned_For_TF-IDF_Movie_Dataset.csv', index=False)
-print(cleaned.info())
